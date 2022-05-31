@@ -1,10 +1,11 @@
+alert("Press OK to start the game !");
 window.onload = function () {
 
     var canvas = document.createElement('canvas');
     canvas.width = 900;
     canvas.height = 600;
     var ctx = canvas.getContext('2d');
-    var delay = 150; //1s
+    var delay = 75; //1s
     var blocksize = 30;
     var defaultbody = [[0, 0], [30, 0], [60, 0], [90, 0]];
     var body = [[0, 0], [30, 0], [60, 0], [90, 0]]; // max width 900 - 10  max height 600 -10
@@ -13,8 +14,11 @@ window.onload = function () {
     init();
 
     function init() {
-        canvas.style.border = "1px solid black";
+        canvas.style.border = "5px solid black";
+        canvas.style.background="WHITE";
         document.body.appendChild(canvas);
+        ctx.font="bold 200px sans-serif";
+        ctx.textBaseline="middle";
         snake = new Snake(body, 30, 0);
         ball = new Eat(Math.floor(Math.random() * 30) * 30, Math.floor(Math.random() * 20) * 30);
         console.log(ball.x);
@@ -23,7 +27,8 @@ window.onload = function () {
     }
 
     function refreshCanvas() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);7
+        drawScore();
         snake.draw();
         ball.draw();
         // Check if the snake eat the Ball
@@ -36,6 +41,13 @@ window.onload = function () {
         snake.colision();
         setTimeout(refreshCanvas, delay);
     }
+
+    function drawScore (){
+       ctx.save();
+       ctx.fillText(score.toString(), canvas.width/2 - 80, canvas.height/2 )
+
+    }
+
 
     function Snake(body, x, y) {
         this.body = body;
@@ -137,3 +149,6 @@ document.onkeydown = function handleKey(e) {
     snake.setdirection(pushX, pushY);
 }
 
+/* 
+HALASPEC 
+*/
