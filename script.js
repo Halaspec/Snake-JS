@@ -4,27 +4,43 @@ window.onload = function () {
     canvas.width = 900;
     canvas.height = 600;
     var ctx = canvas.getContext('2d');
-    var delay = 100; //1s
+    var delay = 150; //1s
     var blocksize = 30;
-    var body = [[10, 10], [40, 10], [70, 10], [100, 10]]; // max width 900 - 10  max height 600 -10
+    var defaultbody = [[0, 0], [30, 0], [60, 0], [90, 0]];
+    var body = [[0, 0], [30, 0], [60, 0], [90, 0]]; // max width 900 - 10  max height 600 -10
+    var score = 0;
 
     init();
-    
+
     function init() {
         canvas.style.border = "1px solid black";
         document.body.appendChild(canvas);
-        snake = new Snake(body);
+        snake = new Snake(body, 30, 0);
+        ball = new Eat(Math.floor(Math.random() * 30) * 30, Math.floor(Math.random() * 20) * 30);
+        console.log(ball.x);
+        console.log(ball.y);
         refreshCanvas();
     }
 
     function refreshCanvas() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         snake.draw();
+        ball.draw();
+        // Check if the snake eat the Ball
+        if (ball.x == snake.body[snake.body.length - 1][0] && ball.y == snake.body[snake.body.length - 1][1]) {
+            score++;
+            console.log(score);
+            ball.replace();
+            snake.body.unshift([[snake.body[0][0] - 30, snake.body[0][1]]])
+        }
+        snake.colision();
         setTimeout(refreshCanvas, delay);
     }
 
-    function Snake(body) {
+    function Snake(body, x, y) {
         this.body = body;
+        this.x = x;
+        this.y = y;
 
         this.draw = function () {
             ctx.save();
@@ -39,21 +55,60 @@ window.onload = function () {
         this.moveX = function (push) {
             this.body.shift();
             this.body.push([this.body[this.body.length - 1][0] + push, this.body[this.body.length - 1][1]]);
-            setTimeout(moveX, delay);
         };
         this.moveY = function (push) {
             this.body.shift();
             this.body.push([this.body[this.body.length - 1][0], this.body[this.body.length - 1][1] + push]);
-            setTimeout(refreshCanvas, delay);
         };
 
-        this.setdirection = function (vx, vy) {            
-           if (vx == 0 && vy != 0) {
-               this.moveY(vy);
-           }
-           if (vx != 0 && vy == 0){
-            this.moveX(vx);
-           }
+        this.setdirection = function (vx, vy) {
+            this.x = vx;
+            this.y = vy;
+            console.log("snakex" + this.x);
+            console.log("snakey" + this.y);
+            if (vx == 0 && vy != 0) {
+                this.moveY(this.y);
+            }
+            if (vx != 0 && vy == 0) {
+                this.moveX(this.x);
+            }
+        }
+
+        this.colision = function () {
+            if (this.body[this.body.length - 1][0] < 0 || this.body[this.body.length - 1][0] > 870
+                || this.body[this.body.length - 1][1] < 0 || this.body[this.body.length - 1][1] > 570) {
+                this.lose();
+            } else {
+                for (var i = 0; i < this.body.length - 1; i++) {
+                    if (this.body[this.body.length - 1][1] == this.body[i][1] && this.body[this.body.length - 1][0] == this.body[i][0]) this.lose();
+                } 
+            }
+           if (this.x != 0)  this.moveX(this.x); 
+           if (this.y != 0)  this.moveY(this.y);
+        }
+        this.lose = function () {
+            alert("you lose, votre score est de :" + score + "points");
+            score = 0;
+            this.body = [...defaultbody];
+            this.x = 30;
+            this.y= 0; // reset start
+        }
+    }
+
+    function Eat(x, y) {
+        this.x = x;
+        this.y = y;
+
+        this.draw = function () {
+            ctx.save();
+            ctx.fillStyle = "#00ffff";
+            ctx.fillRect(this.x, this.y, blocksize, blocksize);
+            ctx.restore();
+        };
+
+        this.replace = function () {
+            this.x = Math.floor(Math.random() * 30) * 30;
+            this.y = Math.floor(Math.random() * 20) * 30;
         }
     }
 };
